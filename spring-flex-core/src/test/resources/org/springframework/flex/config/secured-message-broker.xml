@@ -11,7 +11,7 @@
     		<flex:secured-channel channel="my-amf" access="ROLE_USER" />
     	</flex:secured>
     </flex:message-broker>
-	
+
 	<import resource="security-context.xml"/>
 	
 </beans> 

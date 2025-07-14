@@ -28,6 +28,6 @@ public class AnnotatedAutowiredRemoteBean {
 
     @Autowired
     public AnnotatedAutowiredRemoteBean(MyDependency dependency) {
-        Assert.notNull(dependency);
+        Assert.notNull(dependency, "Dependency must not be null");
     }
 }

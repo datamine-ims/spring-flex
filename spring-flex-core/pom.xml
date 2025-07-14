@@ -5,29 +5,12 @@
 	<parent>
 		<groupId>org.springframework.flex</groupId>
 		<artifactId>spring-flex-parent</artifactId>
-		<version>1.6.1.BUILD</version>
+		<version>1.6.2.BUILD</version>
 		<relativePath>../spring-flex-parent</relativePath>
 	</parent>
 	<artifactId>spring-flex-core</artifactId>
 	<packaging>jar</packaging>
 	<name>Spring BlazeDS Integration Core</name>
-
-	<distributionManagement>
-		<repository>
-			<id>releases_maven</id>
-			<name>Datamine Nexus Releases Maven</name>
-			<url>http://172.22.22.9/nexus/content/repositories/releases_maven</url>
-		</repository>
-	</distributionManagement>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<!-- To resolve jai_jt for example -->
-			<id>releases_maven</id>
-			<name>Datamine Nexus Releases Maven</name>
-			<url>http://172.22.22.9/nexus/content/repositories/releases_maven</url>
-		</pluginRepository>
-	</pluginRepositories>
 
 	<profiles>
 		<profile>
@@ -69,12 +52,12 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.annotation</groupId>
-			<artifactId>jsr250-api</artifactId>
+			<groupId>jakarta.annotation</groupId>
+			<artifactId>jakarta.annotation-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
@@ -129,8 +112,8 @@
 			<artifactId>flex-messaging-remoting</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.jms</groupId>
-			<artifactId>jms-api</artifactId>
+			<groupId>jakarta.jms</groupId>
+			<artifactId>jakarta.jms-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -178,9 +161,24 @@
 			<groupId>xalan</groupId>
 			<artifactId>xalan</artifactId>
 		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.apache.activemq</groupId>-->
+<!--			<artifactId>activemq-core</artifactId>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>org.apache.activemq</groupId>-->
+<!--			<artifactId>activemq-client-jakarta</artifactId>-->
+<!--			<scope>test</scope>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>org.apache.activemq</groupId>
-			<artifactId>activemq-core</artifactId>
+			<artifactId>activemq-client</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-broker</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -202,6 +200,12 @@
 			<artifactId>log4j</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>jakarta.xml.bind</groupId>
+			<artifactId>jakarta.xml.bind-api</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 	
 </project>

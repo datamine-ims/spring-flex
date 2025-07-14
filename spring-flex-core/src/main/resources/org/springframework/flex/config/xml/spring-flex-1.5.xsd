@@ -337,7 +337,7 @@ reference will be "connectionFactory".
 							</xsd:documentation>
 							<xsd:appinfo>
 								<tool:annotation kind="ref">
-									<tool:expected-type type="javax.jms.ConnectionFactory"/>
+									<tool:expected-type type=".jms.ConnectionFactory"/>
 								</tool:annotation>
 							</xsd:appinfo>
 						</xsd:annotation>

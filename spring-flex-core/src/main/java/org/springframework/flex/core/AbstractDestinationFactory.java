@@ -19,7 +19,7 @@ package org.springframework.flex.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.ServletConfig;
+import jakarta.servlet.ServletConfig;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;

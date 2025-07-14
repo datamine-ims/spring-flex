@@ -16,7 +16,7 @@
 
 package org.springframework.flex.config;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.springframework.flex.remoting.RemotingDestination;
 import org.springframework.stereotype.Service;

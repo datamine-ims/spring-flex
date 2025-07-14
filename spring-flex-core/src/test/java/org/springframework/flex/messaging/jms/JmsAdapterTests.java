@@ -1,7 +1,7 @@
 package org.springframework.flex.messaging.jms;
 
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
+import jakarta.jms.ConnectionFactory;
+import jakarta.jms.Destination;
 
 import flex.messaging.client.FlexClient;
 import org.apache.activemq.ActiveMQConnectionFactory;

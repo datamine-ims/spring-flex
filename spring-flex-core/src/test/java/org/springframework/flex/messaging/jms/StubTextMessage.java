@@ -16,8 +16,8 @@
 
 package org.springframework.flex.messaging.jms;
 
-import javax.jms.JMSException;
-import javax.jms.TextMessage;
+import jakarta.jms.JMSException;
+import jakarta.jms.TextMessage;
 
 /**
  * @author Mark Fisher
