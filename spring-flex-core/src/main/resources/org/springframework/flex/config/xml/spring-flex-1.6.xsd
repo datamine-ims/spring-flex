@@ -337,7 +337,7 @@ reference will be "connectionFactory".
 							</xsd:documentation>
 							<xsd:appinfo>
 								<tool:annotation kind="ref">
-									<tool:expected-type type=".jms.ConnectionFactory"/>
+									<tool:expected-type type="jakarta.jms.ConnectionFactory"/>
 								</tool:annotation>
 							</xsd:appinfo>
 						</xsd:annotation>
@@ -351,7 +351,7 @@ A reference to a JMS Destination instance.
 							</xsd:documentation>
 							<xsd:appinfo>
 								<tool:annotation kind="ref">
-									<tool:expected-type type="jaxax.jms.Destination"/>
+									<tool:expected-type type="jakarta.jms.Destination"/>
 								</tool:annotation>
 							</xsd:appinfo>
 						</xsd:annotation>

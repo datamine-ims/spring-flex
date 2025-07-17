@@ -16,7 +16,11 @@
 
 package org.springframework.flex.config.xml;
 
-import jakarta.jms.*;
+import jakarta.jms.Connection;
+import jakarta.jms.ConnectionFactory;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
+import jakarta.jms.JMSContext;
 
 import org.springframework.flex.config.BeanIds;
 import org.springframework.flex.messaging.jms.JmsAdapter;

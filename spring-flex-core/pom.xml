@@ -161,15 +161,6 @@
 			<groupId>xalan</groupId>
 			<artifactId>xalan</artifactId>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.apache.activemq</groupId>-->
-<!--			<artifactId>activemq-core</artifactId>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>org.apache.activemq</groupId>-->
-<!--			<artifactId>activemq-client-jakarta</artifactId>-->
-<!--			<scope>test</scope>-->
-<!--		</dependency>-->
 		<dependency>
 			<groupId>org.apache.activemq</groupId>
 			<artifactId>activemq-client</artifactId>

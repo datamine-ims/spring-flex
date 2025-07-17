@@ -16,7 +16,10 @@
 
 package org.springframework.flex.messaging.jms;
 
-import jakarta.jms.*;
+import jakarta.jms.Connection;
+import jakarta.jms.ConnectionFactory;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSContext;
 
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.context.support.StaticApplicationContext;

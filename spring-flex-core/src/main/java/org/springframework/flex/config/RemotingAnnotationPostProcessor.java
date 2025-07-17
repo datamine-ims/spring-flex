@@ -16,7 +16,11 @@
 
 package org.springframework.flex.config;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.LinkedHashSet;
+import java.util.Collections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -95,13 +99,6 @@ public class RemotingAnnotationPostProcessor implements BeanFactoryPostProcessor
                 : BeanIds.MESSAGE_BROKER;
             String destinationId = StringUtils.hasText(remotingDestination.value()) ? remotingDestination.value()
                 : remotingDestinationConfig.getBeanName();
-            
-//            String[] channels = null;
-//            for (String channelValue : remotingDestination.channels()) {
-//                channelValue = beanFactory.resolveEmbeddedValue(channelValue);
-//                String[] parsedChannels = StringUtils.trimArrayElements(StringUtils.commaDelimitedListToStringArray(channelValue));
-//                channels = StringUtils.mergeStringArrays(channels, parsedChannels);
-//            }
 
             Set<String> channelSet = new LinkedHashSet<>();
             for (String channelValue : remotingDestination.channels()) {
