@@ -357,10 +357,6 @@ public class MessageBrokerBeanDefinitionParser extends AbstractSingleBeanDefinit
         String authManager, String accessManager) {
         if (securedElement.hasChildNodes() && !interceptors.containsKey(MessageInterceptors.ENDPOINT_INTERCEPTOR.getOrder())) {
             BeanDefinitionBuilder interceptorBuilder = BeanDefinitionBuilder.genericBeanDefinition(securityHelper.getEndpointInterceptorClassName());
-            interceptorBuilder.addPropertyReference(AUTH_MANAGER_PROPERTY, authManager);
-            if (StringUtils.hasText(accessManager)) {
-                interceptorBuilder.addPropertyReference(ACCESS_MANAGER_PROPERTY, accessManager);
-            }
 
             BeanDefinitionBuilder endpointDefSourceBuilder = BeanDefinitionBuilder.genericBeanDefinition(securityHelper.getEndpointDefinitionSourceClassName());
 

@@ -61,8 +61,7 @@ import org.springframework.flex.security3.SecurityConfigurationPostProcessor;
 import org.springframework.flex.security3.SpringSecurityLoginCommand;
 import org.springframework.flex.servlet.MessageBrokerHandlerAdapter;
 import org.springframework.mock.web.MockServletContext;
-import org.springframework.security.access.AccessDecisionManager;
-import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.test.annotation.IfProfileValue;
@@ -433,7 +432,7 @@ public class MessageBrokerBeanDefinitionParserTests extends AbstractFlexConfigur
             while (m.hasNext()) {
                 MessageInterceptor interceptor = m.next();
                 if (interceptor instanceof EndpointInterceptor) {
-                    Collection<ConfigAttribute> definitions = ((EndpointInterceptor) interceptor).getObjectDefinitionSource().getAllConfigAttributes();
+                    Collection<String> definitions = ((EndpointInterceptor) interceptor).getObjectDefinitionSource().getAllConfigAttributes();
                     assertEquals("Incorrect number of EnpointDefinitionSource instances", 3, definitions.size());
                 }
             }
@@ -593,7 +592,7 @@ public class MessageBrokerBeanDefinitionParserTests extends AbstractFlexConfigur
         }
 
         public void afterPropertiesSet() throws Exception {
-            System.out.println(StringUtils.arrayToCommaDelimitedString(beanFactory.getBeanNamesForType(AccessDecisionManager.class)));
+            System.out.println(StringUtils.arrayToCommaDelimitedString(beanFactory.getBeanNamesForType(AuthorizationManager.class)));
         }
 
     }

@@ -31,8 +31,6 @@ import java.util.List;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import flex.messaging.FlexContext;
@@ -62,38 +60,38 @@ public class EndpointSecurityMetadataSourceTests {
 
     @Test
     public void forProtectedEndpointId() {
-        HashMap<String, Collection<ConfigAttribute>> endpointMap = new HashMap<String, Collection<ConfigAttribute>>();
-        List<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>();
-        attrs.add(new SecurityConfig("ROLE_USER"));
+        HashMap<String, Collection<String>> endpointMap = new HashMap<String, Collection<String>>();
+        List<String> attrs = new ArrayList<String>();
+        attrs.add("ROLE_USER");
         endpointMap.put("foo", attrs);
-        this.source = new EndpointSecurityMetadataSource(new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>(), endpointMap);
+        this.source = new EndpointSecurityMetadataSource(new LinkedHashMap<RequestMatcher, Collection<String>>(), endpointMap);
 
         when(this.mockEndpoint.getId()).thenReturn("foo");
 
-        Collection<ConfigAttribute> def = this.source.getAttributes(this.mockEndpoint);
+        Collection<String> def = this.source.getAttributes(this.mockEndpoint);
 
         assertTrue(def.size() > 0);
     }
 
     @Test
     public void forProtectedURL() {
-        List<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>();
-        attrs.add(new SecurityConfig("ROLE_USER"));
-        LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>();
+        List<String> attrs = new ArrayList<String>();
+        attrs.add("ROLE_USER");
+        LinkedHashMap<RequestMatcher, Collection<String>> requestMap = new LinkedHashMap<RequestMatcher, Collection<String>>();
         requestMap.put(new AntPathRequestMatcher("/messagebroker/**"), attrs);
         this.source = new EndpointSecurityMetadataSource(requestMap);
 
         this.request.setServletPath("/messagebroker");
         this.request.setPathInfo("/amf");
-        
-        Collection<ConfigAttribute> def = this.source.getAttributes(this.mockEndpoint);
+
+        Collection<String> def = this.source.getAttributes(this.mockEndpoint);
 
         assertTrue(def.size() > 0);
     }
 
     @Test
     public void supportsEndpoint() {
-        this.source = new EndpointSecurityMetadataSource(new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>());
+        this.source = new EndpointSecurityMetadataSource(new LinkedHashMap<RequestMatcher, Collection<String>>());
 
         assertTrue(this.source.supports(Endpoint.class));
         assertTrue(this.source.supports(this.mockEndpoint.getClass()));

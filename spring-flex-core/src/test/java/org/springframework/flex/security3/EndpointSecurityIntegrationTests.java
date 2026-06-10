@@ -36,15 +36,7 @@ import org.springframework.flex.core.EndpointServiceMessagePointcutAdvisor;
 import org.springframework.flex.core.ExceptionTranslationAdvice;
 import org.springframework.flex.core.MessageInterceptionAdvice;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.access.AccessDecisionManager;
-import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.access.vote.AffirmativeBased;
-import org.springframework.security.access.vote.AuthenticatedVoter;
-import org.springframework.security.access.vote.RoleVoter;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -66,11 +58,6 @@ public class EndpointSecurityIntegrationTests extends AbstractMessageBrokerTests
 
     private EndpointSecurityMetadataSource source;
 
-    private AccessDecisionManager adm;
-
-    @Mock
-    private AuthenticationManager mgr;
-    
     @Mock
     private Message message;
     
@@ -80,14 +67,11 @@ public class EndpointSecurityIntegrationTests extends AbstractMessageBrokerTests
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>();
-        List<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>();
-        attrs.add(new SecurityConfig("ROLE_USER"));
+        LinkedHashMap<RequestMatcher, Collection<String>> requestMap = new LinkedHashMap<RequestMatcher, Collection<String>>();
+        List<String> attrs = new ArrayList<String>();
+        attrs.add("ROLE_USER");
         requestMap.put(new AntPathRequestMatcher("/messagebroker/**"), attrs);
         this.source = new EndpointSecurityMetadataSource(requestMap);
-
-        List<AccessDecisionVoter<?>> voters = List.of(new RoleVoter());
-        this.adm = new AffirmativeBased(voters);
 
         initializeInterceptors();
         
@@ -186,8 +170,6 @@ public class EndpointSecurityIntegrationTests extends AbstractMessageBrokerTests
         translator.getExceptionTranslators().add(new SecurityExceptionTranslator());
 
         EndpointInterceptor endpointInterceptor = new EndpointInterceptor();
-        endpointInterceptor.setAuthenticationManager(this.mgr);
-        endpointInterceptor.setAccessDecisionManager(this.adm);
         endpointInterceptor.setObjectDefinitionSource(this.source);
         MessageInterceptionAdvice interceptor = new MessageInterceptionAdvice();
         interceptor.getMessageInterceptors().add(endpointInterceptor);

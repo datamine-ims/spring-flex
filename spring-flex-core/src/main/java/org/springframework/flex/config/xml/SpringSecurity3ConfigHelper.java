@@ -19,8 +19,6 @@ package org.springframework.flex.config.xml;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.SecurityConfig;
 import org.springframework.util.StringUtils;
 
 /**
@@ -68,9 +66,9 @@ public class SpringSecurity3ConfigHelper implements SpringSecurityConfigHelper {
     public Object parseConfigAttributes(String access) {
         if (StringUtils.hasText(access)) {
             String[] attrs = StringUtils.commaDelimitedListToStringArray(access);
-            List<ConfigAttribute> config = new ArrayList<ConfigAttribute>();
+            List<String> config = new ArrayList<String>();
             for (int i = 0; i < attrs.length; i++) {
-                config.add(new SecurityConfig(attrs[i]));
+                config.add(attrs[i]);
             }
             return config;
         } else {
