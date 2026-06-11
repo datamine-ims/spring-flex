@@ -18,7 +18,7 @@ package org.springframework.flex.hibernate4.config;
 
 import java.lang.reflect.Method;
 
-import jakarta.persistence.EntityManagerFactory;
+import javax.persistence.EntityManagerFactory;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.BeanFactory;
