@@ -16,10 +16,10 @@
 
 package org.springframework.flex.messaging.jms;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.JMSException;
+import jakarta.jms.Connection;
+import jakarta.jms.ConnectionFactory;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSContext;
 
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.context.support.StaticApplicationContext;
@@ -98,11 +98,31 @@ public class JmsDestinationTests extends AbstractMessageBrokerTests {
 
     private static class StubConnectionFactory implements ConnectionFactory {
 
-        public Connection createConnection() throws JMSException {
+        public Connection createConnection() {
             return null;
         }
 
-        public Connection createConnection(String userName, String password) throws JMSException {
+        public Connection createConnection(String userName, String password) {
+            return null;
+        }
+
+        @Override
+        public JMSContext createContext() {
+            return null;
+        }
+
+        @Override
+        public JMSContext createContext(String s, String s1) {
+            return null;
+        }
+
+        @Override
+        public JMSContext createContext(String s, String s1, int i) {
+            return null;
+        }
+
+        @Override
+        public JMSContext createContext(int i) {
             return null;
         }
 

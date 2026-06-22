@@ -20,10 +20,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
-import javax.jms.TextMessage;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.Session;
+import jakarta.jms.TextMessage;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class FlexMessageConverterTests {
         FlexMessageConverter converter = new FlexMessageConverter(new CustomMessageConverter());
         AsyncMessage flexMessage = new AsyncMessage();
         flexMessage.setBody("foo");
-        javax.jms.Message jmsMessage = converter.toMessage(flexMessage, this.session);
+        jakarta.jms.Message jmsMessage = converter.toMessage(flexMessage, this.session);
         assertEquals("foo", jmsMessage.getJMSMessageID());
     }
 
@@ -56,7 +56,7 @@ public class FlexMessageConverterTests {
         FlexMessageConverter converter = new FlexMessageConverter();
         AsyncMessage flexMessage = new AsyncMessage();
         flexMessage.setBody("foo");
-        javax.jms.Message jmsMessage = converter.toMessage(flexMessage, this.session);
+        jakarta.jms.Message jmsMessage = converter.toMessage(flexMessage, this.session);
         assertTrue(jmsMessage instanceof TextMessage);
         assertEquals("foo", ((TextMessage) jmsMessage).getText());
     }
@@ -68,7 +68,7 @@ public class FlexMessageConverterTests {
         flexMessage.setBody("foo");
         flexMessage.setHeader("name", "test");
         flexMessage.setHeader("num", 42);
-        javax.jms.Message jmsMessage = converter.toMessage(flexMessage, this.session);
+        jakarta.jms.Message jmsMessage = converter.toMessage(flexMessage, this.session);
         assertTrue(jmsMessage instanceof TextMessage);
         assertEquals("foo", ((TextMessage) jmsMessage).getText());
         assertEquals("test", jmsMessage.getStringProperty("name"));
@@ -95,7 +95,7 @@ public class FlexMessageConverterTests {
     @Test
     public void jmsMessageWithPropertiesToFlexMessage() throws Exception {
         FlexMessageConverter converter = new FlexMessageConverter();
-        javax.jms.Message jmsMessage = new StubMessage();
+        jakarta.jms.Message jmsMessage = new StubMessage();
         jmsMessage.setStringProperty("foo", "bar");
         jmsMessage.setIntProperty("num", 42);
         Object result = converter.fromMessage(jmsMessage);
@@ -108,7 +108,7 @@ public class FlexMessageConverterTests {
     @Test
     public void jmsTextMessageToFlexMessage() throws Exception {
         FlexMessageConverter converter = new FlexMessageConverter();
-        javax.jms.Message jmsMessage = new StubTextMessage("foo");
+        jakarta.jms.Message jmsMessage = new StubTextMessage("foo");
         Object result = converter.fromMessage(jmsMessage);
         assertTrue(result instanceof flex.messaging.messages.Message);
         flex.messaging.messages.Message flexMessage = (flex.messaging.messages.Message) result;

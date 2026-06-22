@@ -1,8 +1,9 @@
 package org.springframework.flex.messaging.jms;
 
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
+import jakarta.jms.ConnectionFactory;
+import jakarta.jms.Destination;
 
+import flex.messaging.client.FlexClient;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.junit.After;
@@ -11,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.context.ApplicationEventPublisher;
@@ -31,15 +33,21 @@ public class JmsAdapterTests extends AbstractMessageBrokerTests {
     
     @Mock
     private ApplicationEventPublisher publisher;
+
+    @Mock
+    FlexClient flexClient;
     
     @Before
     public void setUp() throws Exception {
     	MockitoAnnotations.initMocks(this);
+        Mockito.when(flexClient.getId()).thenReturn("mockFlexClientId");
+        FlexContext.setThreadLocalFlexClient(flexClient);
     }
     
     @After
     public void tearDown() throws Exception {
         getMessageService().removeDestination(DEST_ID);
+        FlexContext.setThreadLocalFlexClient(null);
     }
 
     @Test

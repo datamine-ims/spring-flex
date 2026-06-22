@@ -7,7 +7,7 @@
     <parent>
         <artifactId>spring-flex-parent</artifactId>
         <groupId>org.springframework.flex</groupId>
-        <version>1.6.0.BUILD-SNAPSHOT</version>
+        <version>1.6.1.BUILD</version>
         <relativePath>../spring-flex-parent</relativePath>
     </parent>
 

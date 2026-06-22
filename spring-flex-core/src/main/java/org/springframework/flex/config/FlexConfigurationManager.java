@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import javax.servlet.ServletConfig;
+import jakarta.servlet.ServletConfig;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathException;
@@ -36,11 +36,11 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ResourceLoaderAware;
-import org.springframework.core.JdkVersion;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Node;
@@ -98,7 +98,8 @@ public class FlexConfigurationManager implements ConfigurationManager, ResourceL
      */
     @SuppressWarnings("unchecked")
     public MessagingConfiguration getMessagingConfiguration(ServletConfig servletConfig) {
-        Assert.isTrue(JdkVersion.getMajorJavaVersion() >= JdkVersion.JAVA_15, "Spring BlazeDS Integration requires a minimum of Java 1.5");
+        boolean isJava5OrLater = ClassUtils.isPresent("java.lang.Enum", null);
+        Assert.isTrue(isJava5OrLater, "Spring BlazeDS Integration requires a minimum of Java 1.5");
         Assert.notNull(servletConfig, "FlexConfigurationManager requires a non-null ServletConfig - "
             + "Is it being used outside a WebApplicationContext?");
 

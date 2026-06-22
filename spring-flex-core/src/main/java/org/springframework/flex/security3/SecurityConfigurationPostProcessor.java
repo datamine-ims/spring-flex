@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.Filter;
+import jakarta.servlet.Filter;
 
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeansException;
@@ -38,6 +38,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.flex.core.ExceptionTranslator;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -153,14 +154,15 @@ public class SecurityConfigurationPostProcessor implements MergedBeanDefinitionP
 	private static final class FilterChainAccessor {
     	
     	private final Set<Filter> filters;
-    	
-    	public FilterChainAccessor(FilterChainProxy proxy) {    		
-    		this.filters = new LinkedHashSet<Filter>();
 
-            for (List<Filter> filters : proxy.getFilterChainMap().values()) {
-                this.filters.addAll(filters);
-            }
-    	}
+		public FilterChainAccessor(FilterChainProxy proxy) {
+			this.filters = new LinkedHashSet<>();
+
+			for (SecurityFilterChain chain : proxy.getFilterChains()) {
+				List<Filter> chainFilters = chain.getFilters();
+				this.filters.addAll(chainFilters);
+			}
+		}
     	
     	public Set<Filter> getFilters() {
     		return this.filters;

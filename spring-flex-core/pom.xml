@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.flex</groupId>
 		<artifactId>spring-flex-parent</artifactId>
-		<version>1.6.0.BUILD-SNAPSHOT</version>
+		<version>1.6.2.BUILD</version>
 		<relativePath>../spring-flex-parent</relativePath>
 	</parent>
 	<artifactId>spring-flex-core</artifactId>
@@ -52,12 +52,12 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.annotation</groupId>
-			<artifactId>jsr250-api</artifactId>
+			<groupId>jakarta.annotation</groupId>
+			<artifactId>jakarta.annotation-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
@@ -96,24 +96,24 @@
 			<artifactId>spring-webmvc</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.adobe.blazeds</groupId>
-			<artifactId>blazeds-core</artifactId>
+			<groupId>org.apache.flex.blazeds</groupId>
+			<artifactId>flex-messaging-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.adobe.blazeds</groupId>
-			<artifactId>blazeds-common</artifactId>
+			<groupId>org.apache.flex.blazeds</groupId>
+			<artifactId>flex-messaging-common</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.adobe.blazeds</groupId>
-			<artifactId>blazeds-proxy</artifactId>
+			<groupId>org.apache.flex.blazeds</groupId>
+			<artifactId>flex-messaging-proxy</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.adobe.blazeds</groupId>
-			<artifactId>blazeds-remoting</artifactId>
+			<groupId>org.apache.flex.blazeds</groupId>
+			<artifactId>flex-messaging-remoting</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.jms</groupId>
-			<artifactId>jms-api</artifactId>
+			<groupId>jakarta.jms</groupId>
+			<artifactId>jakarta.jms-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -163,7 +163,13 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.activemq</groupId>
-			<artifactId>activemq-core</artifactId>
+			<artifactId>activemq-client</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-broker</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -185,6 +191,12 @@
 			<artifactId>log4j</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>jakarta.xml.bind</groupId>
+			<artifactId>jakarta.xml.bind-api</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 	
 </project>

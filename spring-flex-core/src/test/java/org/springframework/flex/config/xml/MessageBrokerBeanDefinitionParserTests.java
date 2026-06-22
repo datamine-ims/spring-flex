@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.servlet.ServletConfig;
+import jakarta.servlet.ServletConfig;
 
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;

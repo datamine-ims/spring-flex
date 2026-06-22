@@ -42,15 +42,16 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.vote.AffirmativeBased;
+import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.GrantedAuthorityImpl;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.util.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import flex.messaging.FlexContext;
 import flex.messaging.MessageBroker;
@@ -65,7 +66,7 @@ public class EndpointSecurityIntegrationTests extends AbstractMessageBrokerTests
 
     private EndpointSecurityMetadataSource source;
 
-    private final AccessDecisionManager adm = new AffirmativeBased();
+    private AccessDecisionManager adm;
 
     @Mock
     private AuthenticationManager mgr;
@@ -85,9 +86,8 @@ public class EndpointSecurityIntegrationTests extends AbstractMessageBrokerTests
         requestMap.put(new AntPathRequestMatcher("/messagebroker/**"), attrs);
         this.source = new EndpointSecurityMetadataSource(requestMap);
 
-        List<AccessDecisionVoter> voters = new ArrayList<AccessDecisionVoter>();
-        voters.add(new RoleVoter());
-        ((AffirmativeBased) this.adm).setDecisionVoters(voters);
+        List<AccessDecisionVoter<?>> voters = List.of(new RoleVoter());
+        this.adm = new AffirmativeBased(voters);
 
         initializeInterceptors();
         
@@ -103,7 +103,7 @@ public class EndpointSecurityIntegrationTests extends AbstractMessageBrokerTests
     @Test
     public void serviceAuthorized() throws Exception {
         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        authorities.add(new GrantedAuthorityImpl("ROLE_USER"));
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
         Authentication auth = new UsernamePasswordAuthenticationToken("foo", "bar", authorities);
         SecurityContextHolder.getContext().setAuthentication(auth);
 

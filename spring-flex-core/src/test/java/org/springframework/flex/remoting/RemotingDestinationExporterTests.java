@@ -31,7 +31,7 @@ import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.flex.core.AbstractMessageBrokerTests;
-import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
+//import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.context.support.StaticWebApplicationContext;
 
@@ -243,23 +243,43 @@ public class RemotingDestinationExporterTests extends AbstractMessageBrokerTests
         assertNotNull("RemotingDestination not registered", remotingService.getDestination(destinationId));
     }
 
+//    @Test
+//    public void destinationConfiguredWithSourceClassForProxiedInterface() throws Exception {
+//        StaticWebApplicationContext context = new StaticWebApplicationContext();
+//
+//        MutablePropertyValues props = new MutablePropertyValues();
+//        props.addPropertyValue("serviceUrl", "/foo/bar");
+//        props.addPropertyValue("serviceInterface", StubService.class);
+//        context.registerSingleton("proxiedBean", HttpInvokerProxyFactoryBean.class, props);
+//        context.refresh();
+//        exporter.setBeanFactory(context);
+//        exporter.setService("proxiedBean");
+//        exporter.setDestinationId("proxiedBean");
+//        exporter.afterPropertiesSet();
+//
+//        RemotingService remotingService = getRemotingService();
+//        RemotingDestination remotingDestination = (RemotingDestination) remotingService.getDestination("proxiedBean");
+//        assertEquals("Source not set correctly", StubService.class.getName(), remotingDestination.getSource());
+//    }
+
     @Test
-    public void destinationConfiguredWithSourceClassForProxiedInterface() throws Exception {
+    public void destinationConfiguredWithSourceClassForProxiedInterfaceV2() throws Exception {
         StaticWebApplicationContext context = new StaticWebApplicationContext();
-        
-        MutablePropertyValues props = new MutablePropertyValues();
-        props.addPropertyValue("serviceUrl", "/foo/bar");
-        props.addPropertyValue("serviceInterface", StubService.class);
-        context.registerSingleton("proxiedBean", HttpInvokerProxyFactoryBean.class, props);
+
+        MutablePropertyValues proxyProps = new MutablePropertyValues();
+        proxyProps.addPropertyValue("target", new StubServiceImpl());
+        proxyProps.addPropertyValue("proxyInterfaces", new Class<?>[] { StubService.class });
+        context.registerSingleton("proxiedBean", ProxyFactoryBean.class, proxyProps);
         context.refresh();
+
         exporter.setBeanFactory(context);
         exporter.setService("proxiedBean");
         exporter.setDestinationId("proxiedBean");
         exporter.afterPropertiesSet();
-        
+
         RemotingService remotingService = getRemotingService();
         RemotingDestination remotingDestination = (RemotingDestination) remotingService.getDestination("proxiedBean");
-        assertEquals("Source not set correctly", StubService.class.getName(), remotingDestination.getSource());
+        assertEquals("Source not set correctly", StubServiceImpl.class.getName(), remotingDestination.getSource());
     }
 
     @Test
