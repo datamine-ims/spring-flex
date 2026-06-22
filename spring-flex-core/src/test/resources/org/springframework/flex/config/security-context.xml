@@ -4,11 +4,18 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans 
   			  http://www.springframework.org/schema/beans/spring-beans.xsd
   			  http://www.springframework.org/schema/security
-              http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+              http://www.springframework.org/schema/security/spring-security-6.5.xsd">
 
-	<security:http entry-point-ref="testEntryPoint">
+<!--	<security:http entry-point-ref="testEntryPoint">-->
+<!--		<security:form-login/>-->
+<!--		<security:anonymous enabled="false"/>-->
+<!--	</security:http>-->
+
+	<security:http use-expressions="true" entry-point-ref="testEntryPoint">
 		<security:form-login/>
 		<security:anonymous enabled="false"/>
+		<security:intercept-url pattern="/admin/**" access="hasRole('ADMIN')" />
+		<security:intercept-url pattern="/user/**" access="hasRole('USER')" />
 	</security:http>
 	
 	<bean id="testEntryPoint" class="org.springframework.flex.security3.FlexAuthenticationEntryPoint"/>
@@ -22,6 +29,8 @@
 	</security:authentication-manager>
     
     <bean id="testHelper" class="org.springframework.flex.config.xml.MessageBrokerBeanDefinitionParserTests$AccessDecisionManagerLogger"/>
-	
+
+	<bean id="mvcHandlerMappingIntrospector" class="org.springframework.web.servlet.handler.HandlerMappingIntrospector" />
+
 	<security:global-method-security secured-annotations="enabled" />
 </beans> 

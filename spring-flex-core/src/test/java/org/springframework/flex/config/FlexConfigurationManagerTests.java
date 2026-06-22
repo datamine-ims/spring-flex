@@ -16,7 +16,7 @@
 
 package org.springframework.flex.config;
 
-import javax.servlet.ServletConfig;
+import jakarta.servlet.ServletConfig;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,7 +27,6 @@ import org.springframework.test.annotation.IfProfileValue;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.web.context.support.StaticWebApplicationContext;
 
-import flex.messaging.config.ApacheXPathServerConfigurationParser;
 import flex.messaging.config.ConfigurationManager;
 import flex.messaging.config.MessagingConfiguration;
 import flex.messaging.config.XPathServerConfigurationParser;
@@ -112,19 +111,8 @@ public class FlexConfigurationManagerTests extends AbstractRuntimeEnvironmentAwa
         end = System.currentTimeMillis();
         java5Total = end - start;
         
-        ((FlexConfigurationManager)this.configManager).setConfigurationParser(new ApacheXPathServerConfigurationParser());
-        
-        start = System.currentTimeMillis();
-        for (int x=0; x<iterations; x++) {
-            this.configManager.getMessagingConfiguration(this.config);
-        }
-        end = System.currentTimeMillis();
-        xalanTotal = end - start;
-        
         log.info("Default total parser time = "+defaultTotal+"ms");
         log.info("Java 5 total parser time = "+java5Total+"ms");
-        log.info("Xalan total parser time = "+xalanTotal+"ms");
-        
     }
 
     @Test

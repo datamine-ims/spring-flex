@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import javax.servlet.ServletConfig;
+import jakarta.servlet.ServletConfig;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathException;

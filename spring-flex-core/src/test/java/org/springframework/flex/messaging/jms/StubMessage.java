@@ -21,9 +21,9 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
 
 /**
  * @author Mark Fisher
@@ -52,6 +52,8 @@ public class StubMessage implements Message {
 
     private final Map<String, Object> properties = new HashMap<String, Object>();
 
+    private long jmsDeliveryTime;
+
     /**
      * Subclasses should implement this if needed.
      */
@@ -64,6 +66,16 @@ public class StubMessage implements Message {
      */
     public void clearBody() throws JMSException {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <T> T getBody(Class<T> aClass) throws JMSException {
+        return null;
+    }
+
+    @Override
+    public boolean isBodyAssignableTo(Class aClass) throws JMSException {
+        return false;
     }
 
     public void clearProperties() throws JMSException {
@@ -231,6 +243,16 @@ public class StubMessage implements Message {
 
     public void setJMSExpiration(long expiration) throws JMSException {
         this.expiration = expiration;
+    }
+
+    @Override
+    public long getJMSDeliveryTime() throws JMSException {
+        return this.jmsDeliveryTime;
+    }
+
+    @Override
+    public void setJMSDeliveryTime(long jmsDeliveryTime) throws JMSException {
+        this.jmsDeliveryTime = jmsDeliveryTime;
     }
 
     public void setJMSMessageID(String id) throws JMSException {

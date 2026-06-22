@@ -16,10 +16,11 @@
 
 package org.springframework.flex.config.xml;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.JMSException;
+import jakarta.jms.Connection;
+import jakarta.jms.ConnectionFactory;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
+import jakarta.jms.JMSContext;
 
 import org.springframework.flex.config.BeanIds;
 import org.springframework.flex.messaging.jms.JmsAdapter;
@@ -99,6 +100,26 @@ public class JmsMessageDestinationBeanDefinitionParserTests extends AbstractMess
         }
 
         public Connection createConnection(String userName, String password) throws JMSException {
+            return null;
+        }
+
+        @Override
+        public JMSContext createContext() {
+            return null;
+        }
+
+        @Override
+        public JMSContext createContext(String s, String s1) {
+            return null;
+        }
+
+        @Override
+        public JMSContext createContext(String s, String s1, int i) {
+            return null;
+        }
+
+        @Override
+        public JMSContext createContext(int i) {
             return null;
         }
 

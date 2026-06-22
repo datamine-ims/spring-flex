@@ -16,6 +16,6 @@ public class AnnotatedAutowiredScopedProxyRemoteBean {
     
     @Autowired
     public AnnotatedAutowiredScopedProxyRemoteBean(MyDependency dependency) {
-        Assert.notNull(dependency);
+        Assert.notNull(dependency, "MyDependency must not be null");
     }
 }

@@ -5,7 +5,7 @@
 	<artifactId>spring-flex-parent</artifactId>
 	<packaging>pom</packaging>
 	<name>Spring BlazeDS Integration Parent POM</name>
-	<version>1.6.1.BUILD</version>
+	<version>1.6.2.BUILD</version>
 	
 	<description>
     	Spring BlazeDS Integration is a top-level Spring project, and a component of the complete Spring Web stack.  This 
@@ -56,12 +56,20 @@
         </contributor>
     </contributors>
 
+	<distributionManagement>
+		<repository>
+			<id>nexus-3rd-party</id>
+			<url>http://172.22.22.9/nexus/content/repositories/thirdparty</url>
+		</repository>
+	</distributionManagement>
+
     <properties>
-		<spring.version>5.3.31</spring.version>
+		<spring.version>6.2.8</spring.version>
 		<integration.version>2.2.6.RELEASE</integration.version>
-		<security.version>3.2.4.RELEASE</security.version>
-		<blazeds.version>4.7.3</blazeds.version>
-		<slf4j.version>1.7.7</slf4j.version>
+<!--		<security.version>3.2.4.RELEASE</security.version>-->
+		<security.version>6.5.1</security.version>
+		<blazeds.version>5.0.0</blazeds.version>
+		<slf4j.version>2.0.17</slf4j.version>
 		<hibernate3.version>3.6.10.Final</hibernate3.version>
 		<hibernate4.version>4.3.5.Final</hibernate4.version>
 	</properties>
@@ -89,21 +97,27 @@
 				<version>1.2.17</version>
 			</dependency>
 			<dependency>
-				<groupId>javax.annotation</groupId>
-				<artifactId>jsr250-api</artifactId>
-				<version>1.0</version>
+				<groupId>jakarta.annotation</groupId>
+				<artifactId>jakarta.annotation-api</artifactId>
+				<version>2.1.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>javax.servlet-api</artifactId>
-				<version>3.1.0</version>
+				<groupId>jakarta.servlet</groupId>
+				<artifactId>jakarta.servlet-api</artifactId>
+				<version>6.0.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>jstl</artifactId>
-				<version>1.2</version>
+				<groupId>jakarta.servlet.jsp.jstl</groupId>
+				<artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+				<version>3.0.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.glassfish.web</groupId>
+				<artifactId>jakarta.servlet.jsp.jstl</artifactId>
+				<version>3.0.1</version> <!-- JSTL implementation -->
 			</dependency>
 			<dependency>
 				<groupId>taglibs</groupId>
@@ -183,7 +197,7 @@
 			<dependency>
 				<groupId>org.springframework.flex</groupId>
 				<artifactId>spring-flex-core</artifactId>
-				<version>1.6.1.BUILD</version>
+				<version>1.6.2.BUILD</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.flex.blazeds</groupId>
@@ -206,10 +220,16 @@
 				<version>${blazeds.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>javax.jms</groupId>
-				<artifactId>jms-api</artifactId>
-				<version>1.1-rev-1</version>
+				<groupId>jakarta.jms</groupId>
+				<artifactId>jakarta.jms-api</artifactId>
+				<version>3.1.0</version>
 				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.xml.bind</groupId>
+				<artifactId>jakarta.xml.bind-api</artifactId>
+				<version>3.0.1</version>
+				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -260,6 +280,12 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context-support</artifactId>
+				<version>${spring.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
 				<groupId>xalan</groupId>
 				<artifactId>xalan</artifactId>
 				<version>2.7.1</version>
@@ -267,20 +293,19 @@
 			</dependency>
 			<dependency>
 				<groupId>org.apache.activemq</groupId>
-				<artifactId>activemq-core</artifactId>
-				<version>5.7.0</version>
-				<exclusions>
-					<exclusion>
-						<groupId>commons-logging</groupId>
-						<artifactId>commons-logging-api</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.apache.camel</groupId>
-						<artifactId>camel-core</artifactId>
-					</exclusion>
-				</exclusions>
+				<artifactId>activemq-client</artifactId>
+				<version>6.1.7</version>
 				<scope>test</scope>
 			</dependency>
+
+			<!-- Embedded broker support (optional, for vm:// and broker URI) -->
+			<dependency>
+				<groupId>org.apache.activemq</groupId>
+				<artifactId>activemq-broker</artifactId>
+				<version>6.1.7</version>
+				<scope>test</scope>
+			</dependency>
+
 		</dependencies>
 	</dependencyManagement>
 
@@ -307,15 +332,18 @@
 							<exclude>**/Abstract*</exclude>
 						</excludes>
 						<forkMode>once</forkMode>
+						<argLine>
+							--add-opens java.base/java.lang=ALL-UNNAMED
+						</argLine>
 					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.1</version>
+					<version>3.8.1</version>
 					<configuration>
-						<source>1.6</source>
-						<target>1.6</target>
+						<source>17</source>
+						<target>17</target>
 						<fork>true</fork>
 						<encoding>UTF-8</encoding>
 					</configuration>

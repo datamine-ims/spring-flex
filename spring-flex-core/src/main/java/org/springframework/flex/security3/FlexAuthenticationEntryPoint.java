@@ -20,9 +20,9 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,7 +82,7 @@ public class FlexAuthenticationEntryPoint extends Http403ForbiddenEntryPoint {
 	private Set<ExceptionTranslator> exceptionTranslators;
 	
 	/**
-	 * If the incoming message is an {@link ActionMessage}, indicating a standard Flex Remoting or Messaging 
+	 * If the incoming message is an {@link ActionMessage}, indicating a standard FlJmsAdapter.javaex Remoting or Messaging
 	 * request, invokes Spring BlazeDS's {@link ExceptionTranslator}s with the {@link AuthenticationException} and 
 	 * sends the resulting {@link MessageException} as an AMF response to the client.
 	 * 
@@ -91,7 +91,7 @@ public class FlexAuthenticationEntryPoint extends Http403ForbiddenEntryPoint {
 	 * delegate to the parent class to return a 403 response.
 	 */
 	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
-			throws IOException, ServletException {
+			throws IOException {
 		
 		if (CollectionUtils.isEmpty(this.exceptionTranslators)) {
 			exceptionTranslators = Collections.singleton(DEFAULT_TRANSLATOR);

@@ -2,7 +2,7 @@
 package org.springframework.flex.core.io.domain;
 
 import java.util.Set;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class PersonNP {
