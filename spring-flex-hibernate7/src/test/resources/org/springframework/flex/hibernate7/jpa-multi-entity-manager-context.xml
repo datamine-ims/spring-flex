@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <import resource="hibernate-jpa-context.xml"/>
+    
+    <bean id="entityManagerFactory2" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+    	<property name="dataSource" ref="dataSource"/>
+    	<property name="packagesToScan" value="org.springframework.flex.hibernate7.domain"/>
+    	<property name="jpaVendorAdapter">
+    		<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"/>
+    	</property>
+        <property name="jpaProperties">
+            <props>
+                <prop key="hibernate.hbm2ddl.auto">create</prop>
+            </props>
+        </property>
+    </bean>
+
+<!--    &lt;!&ndash; hibernate7 5 doesn't have this registered automatically&ndash;&gt;-->
+<!--    <bean id="jpaHibernateConfigProcessor" class="org.springframework.flex.hibernate7.config.JpaHibernateConfigProcessor" />-->
+
+</beans>

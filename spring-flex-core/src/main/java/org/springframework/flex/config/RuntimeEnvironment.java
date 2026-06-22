@@ -48,6 +48,10 @@ public abstract class RuntimeEnvironment {
 
     private static final String SPRING_FLEX_HIBERNATE_5_SUPPORT_CLASS_NAME = "org.springframework.flex.hibernate5.HibernateProxyConverter";
 
+    private static final String HIBERNATE_7_SUPPORT_CLASS_NAME = "jakarta.persistence.PersistenceConfiguration";
+
+    private static final String SPRING_FLEX_HIBERNATE_7_SUPPORT_CLASS_NAME = "org.springframework.flex.hibernate7.HibernateProxyConverter";
+
     private static final boolean IS_LCDS_ENVIRONMENT;
 
     private static final boolean IS_SPRING_SUPPORT_AVAILABLE;
@@ -68,6 +72,10 @@ public abstract class RuntimeEnvironment {
 
     private static final boolean IS_SPRING_FLEX_HIBERNATE_5_SUPPORT_AVAILABLE;
 
+    private static final boolean IS_HIBERNATE_7_SUPPORT_AVAILABLE;
+
+    private static final boolean IS_SPRING_FLEX_HIBERNATE_7_SUPPORT_AVAILABLE;
+
     static {
         boolean asyncMessageBrokerClassPresent;
         boolean springSupportClassPresent;
@@ -78,6 +86,8 @@ public abstract class RuntimeEnvironment {
         boolean springFlexHibernate4SupportClassPresent;
         boolean hibernate5SupportClassPresent;
         boolean springFlexHibernate5SupportClassPresent;
+        boolean hibernate7SupportClassPresent;
+        boolean springFlexHibernate7SupportClassPresent;
 
         try {
             ClassUtils.forName(ASYNC_MESSAGE_BROKER_CLASS_NAME, null);
@@ -142,6 +152,20 @@ public abstract class RuntimeEnvironment {
             springFlexHibernate5SupportClassPresent = false;
         }
 
+        try {
+            ClassUtils.forName(HIBERNATE_7_SUPPORT_CLASS_NAME, null);
+            hibernate7SupportClassPresent = true;
+        } catch (ClassNotFoundException ex) {
+            hibernate7SupportClassPresent = false;
+        }
+
+        try {
+            ClassUtils.forName(SPRING_FLEX_HIBERNATE_7_SUPPORT_CLASS_NAME, null);
+            springFlexHibernate7SupportClassPresent = true;
+        } catch (ClassNotFoundException ex) {
+            springFlexHibernate7SupportClassPresent = false;
+        }
+
         IS_BLAZEDS_46 = ClassUtils.getMethodIfAvailable(ConfigurationFileResolver.class, "getFiles", String.class) != null;
 
         IS_LCDS_ENVIRONMENT = asyncMessageBrokerClassPresent;
@@ -153,6 +177,8 @@ public abstract class RuntimeEnvironment {
         IS_SPRING_FLEX_HIBERNATE_4_SUPPORT_AVAILABLE = springFlexHibernate4SupportClassPresent;
         IS_HIBERNATE_5_SUPPORT_AVAILABLE = hibernate5SupportClassPresent;
         IS_SPRING_FLEX_HIBERNATE_5_SUPPORT_AVAILABLE = springFlexHibernate5SupportClassPresent;
+        IS_HIBERNATE_7_SUPPORT_AVAILABLE = hibernate7SupportClassPresent;
+        IS_SPRING_FLEX_HIBERNATE_7_SUPPORT_AVAILABLE = springFlexHibernate7SupportClassPresent;
     }
 
     /**
@@ -207,5 +233,13 @@ public abstract class RuntimeEnvironment {
 
     public static boolean isSpringFlexHibernate5SupportAvailable(){
         return IS_SPRING_FLEX_HIBERNATE_5_SUPPORT_AVAILABLE;
+    }
+
+    public static boolean isHibernate7SupportAvailable(){
+        return IS_HIBERNATE_7_SUPPORT_AVAILABLE;
+    }
+
+    public static boolean isSpringFlexHibernate7SupportAvailable(){
+        return IS_SPRING_FLEX_HIBERNATE_7_SUPPORT_AVAILABLE;
     }
 }

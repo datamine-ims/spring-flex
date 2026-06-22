@@ -152,9 +152,9 @@ public class AmfHttpMessageConverter extends AbstractHttpMessageConverter<Object
     	try {
             return deserializer.readObject();
         } catch (ClassNotFoundException cnfe) {
-        	throw new HttpMessageNotReadableException(AMF_ERROR, cnfe);
+        	throw new HttpMessageNotReadableException(AMF_ERROR, cnfe, inputMessage);
         } catch (MessageException se) {
-        	throw new HttpMessageNotReadableException(AMF_ERROR, se);
+        	throw new HttpMessageNotReadableException(AMF_ERROR, se, inputMessage);
         }
 	}
 
@@ -174,9 +174,9 @@ public class AmfHttpMessageConverter extends AbstractHttpMessageConverter<Object
             deserializer.readMessage(message, context);
             return message;
         } catch (ClassNotFoundException cnfe) {
-        	throw new HttpMessageNotReadableException(ACTION_MSG_ERROR, cnfe);
+        	throw new HttpMessageNotReadableException(ACTION_MSG_ERROR, cnfe, inputMessage);
         } catch (MessageException me) {
-        	throw new HttpMessageNotReadableException(ACTION_MSG_ERROR, me);
+        	throw new HttpMessageNotReadableException(ACTION_MSG_ERROR, me, inputMessage);
         }
     }
 	

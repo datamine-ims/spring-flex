@@ -24,10 +24,12 @@ import org.springframework.flex.core.MessageProcessingContext;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
@@ -95,9 +97,11 @@ public class EndpointInterceptor implements MessageInterceptor {
             AbstractEndpoint endpoint = (AbstractEndpoint) context.getMessageTarget();
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-            AuthorizationDecision decision = this.authorizationManager.check(() -> authentication, endpoint);
+            AuthorizationResult result = this.authorizationManager.authorize(() -> authentication, endpoint);
 
-            if (decision != null && !decision.isGranted()) {
+            // AuthorizationManager#authorize may return null to abstain. Deny by default so a custom
+            // AuthorizationManager that abstains cannot unintentionally grant access.
+            if (result == null || !result.isGranted()) {
                 // Mirror AbstractSecurityInterceptor: an unauthenticated principal yields an
                 // AuthenticationException (CLIENT_AUTHENTICATION_CODE), whereas an authenticated
                 // but insufficiently privileged principal yields an AccessDeniedException
@@ -146,8 +150,14 @@ public class EndpointInterceptor implements MessageInterceptor {
             this.metadataSource = metadataSource;
         }
 
+        private static final String IS_AUTHENTICATED_FULLY = "IS_AUTHENTICATED_FULLY";
+
+        private static final String IS_AUTHENTICATED_REMEMBERED = "IS_AUTHENTICATED_REMEMBERED";
+
+        private static final String IS_AUTHENTICATED_ANONYMOUSLY = "IS_AUTHENTICATED_ANONYMOUSLY";
+
         @Override
-        public AuthorizationDecision check(Supplier<Authentication> authentication, AbstractEndpoint endpoint) {
+        public AuthorizationResult authorize(Supplier<? extends Authentication> authentication, AbstractEndpoint endpoint) {
             Collection<String> attributes = this.metadataSource.getAttributes(endpoint);
 
             // No attributes configured means the endpoint is not secured - grant access.
@@ -156,25 +166,59 @@ public class EndpointInterceptor implements MessageInterceptor {
             }
 
             Authentication auth = authentication.get();
-            if (isUnauthenticated(auth)) {
-                return new AuthorizationDecision(false);
-            }
-
             for (String attribute : attributes) {
                 if (attribute == null) {
                     continue;
                 }
-                // IS_AUTHENTICATED_* attributes are satisfied by any authenticated principal
-                // (mirrors AuthenticatedVoter behaviour).
-                if (attribute.startsWith("IS_AUTHENTICATED_")) {
-                    return new AuthorizationDecision(true);
-                }
-                if (auth.getAuthorities().contains(new SimpleGrantedAuthority(attribute))) {
+                if (grants(attribute, auth)) {
                     return new AuthorizationDecision(true);
                 }
             }
 
             return new AuthorizationDecision(false);
+        }
+
+        /**
+         * Mirrors the legacy {@code AuthenticatedVoter} + {@code RoleVoter} semantics:
+         * <ul>
+         *     <li>{@code IS_AUTHENTICATED_ANONYMOUSLY} - granted for any authentication, including anonymous.</li>
+         *     <li>{@code IS_AUTHENTICATED_REMEMBERED} - granted for remember-me or fully authenticated principals.</li>
+         *     <li>{@code IS_AUTHENTICATED_FULLY} - granted only for fully authenticated (non-anonymous, non-remembered) principals.</li>
+         *     <li>Any other attribute is treated as the name of a {@link GrantedAuthority} that the authentication must hold.</li>
+         * </ul>
+         */
+        private static boolean grants(String attribute, Authentication auth) {
+            if (auth == null) {
+                return false;
+            }
+            switch (attribute) {
+                case IS_AUTHENTICATED_ANONYMOUSLY:
+                    return true;
+                case IS_AUTHENTICATED_REMEMBERED:
+                    return auth instanceof RememberMeAuthenticationToken || isFullyAuthenticated(auth);
+                case IS_AUTHENTICATED_FULLY:
+                    return isFullyAuthenticated(auth);
+                default:
+                    return auth.isAuthenticated() && hasAuthority(auth, attribute);
+            }
+        }
+
+        private static boolean hasAuthority(Authentication auth, String attribute) {
+            if (auth.getAuthorities() == null) {
+                return false;
+            }
+            for (GrantedAuthority authority : auth.getAuthorities()) {
+                if (authority != null && attribute.equals(authority.getAuthority())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static boolean isFullyAuthenticated(Authentication auth) {
+            return auth.isAuthenticated()
+                && !(auth instanceof AnonymousAuthenticationToken)
+                && !(auth instanceof RememberMeAuthenticationToken);
         }
     }
 }
