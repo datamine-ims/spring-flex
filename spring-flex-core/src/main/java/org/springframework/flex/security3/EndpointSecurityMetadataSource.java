@@ -86,16 +86,21 @@ public class EndpointSecurityMetadataSource {
         if (this.endpointMap.containsKey(endpoint.getId())) {
             attributes = this.endpointMap.get(endpoint.getId());
         } else {
-        	final HttpServletRequest request = FlexContext.getHttpRequest();
-        	if (request != null) {
-	            for (Map.Entry<RequestMatcher, Collection<String>> entry : requestMap.entrySet()) {
-	                if (entry.getKey().matches(request)) {
-	                    return entry.getValue();
-	                }
-	            }
-        	}
+            HttpServletRequest request = FlexContext.getHttpRequest();
+            if (request != null) {
+                attributes = findMatchingRequestAttributes(request);
+            }
         }
         return attributes;
+    }
+
+    private Collection<String> findMatchingRequestAttributes(HttpServletRequest request) {
+        for (Map.Entry<RequestMatcher, Collection<String>> entry : this.requestMap.entrySet()) {
+            if (entry.getKey().matches(request)) {
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 
     /**

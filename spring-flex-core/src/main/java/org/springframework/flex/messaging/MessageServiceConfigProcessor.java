@@ -66,16 +66,21 @@ public class MessageServiceConfigProcessor extends AbstractServiceConfigProcesso
             return;
         }
 
+        Endpoint defaultEndpoint = null;
         Iterator<String> channels = broker.getChannelIds().iterator();
-        while (channels.hasNext()) {
+        while (channels.hasNext() && defaultEndpoint == null) {
             Endpoint endpoint = broker.getEndpoint(channels.next());
             if (endpoint instanceof AMFEndpoint && isPollingEnabled(endpoint)) {
-                service.addDefaultChannel(endpoint.getId());
-                return;
+                defaultEndpoint = endpoint;
             }
         }
-        log.warn("No appropriate default channels were detected for the MessageService.  "
-            + "The channels must be explicitly set on any exported service.");
+
+        if (defaultEndpoint != null) {
+            service.addDefaultChannel(defaultEndpoint.getId());
+        } else {
+            log.warn("No appropriate default channels were detected for the MessageService.  "
+                + "The channels must be explicitly set on any exported service.");
+        }
     }
 
     /**

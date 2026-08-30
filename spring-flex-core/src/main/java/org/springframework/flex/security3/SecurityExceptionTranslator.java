@@ -44,20 +44,22 @@ public class SecurityExceptionTranslator implements ExceptionTranslator {
      * {@inheritDoc}
      */
     public MessageException translate(Throwable t) {
+        String code = null;
         if (t instanceof AuthenticationException) {
-            SecurityException se = new SecurityException();
-            se.setCode(SecurityException.CLIENT_AUTHENTICATION_CODE);
-            se.setMessage(t.getLocalizedMessage());
-            se.setRootCause(t);
-            return se;
+            code = SecurityException.CLIENT_AUTHENTICATION_CODE;
         } else if (t instanceof AccessDeniedException) {
-            SecurityException se = new SecurityException();
-            se.setCode(SecurityException.CLIENT_AUTHORIZATION_CODE);
-            se.setMessage(t.getLocalizedMessage());
-            se.setRootCause(t);
-            return se;
+            code = SecurityException.CLIENT_AUTHORIZATION_CODE;
         }
-        return null;
+
+        if (code == null) {
+            return null;
+        }
+
+        SecurityException se = new SecurityException();
+        se.setCode(code);
+        se.setMessage(t.getLocalizedMessage());
+        se.setRootCause(t);
+        return se;
     }
 
 }
