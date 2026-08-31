@@ -17,6 +17,7 @@
 package org.springframework.flex.security3;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.function.Supplier;
 
 import org.springframework.flex.core.MessageInterceptor;
@@ -160,22 +161,23 @@ public class EndpointInterceptor implements MessageInterceptor {
         public AuthorizationResult authorize(Supplier<? extends Authentication> authentication, AbstractEndpoint endpoint) {
             Collection<String> attributes = this.metadataSource.getAttributes(endpoint);
 
+            boolean isGranted = false;
+
             // No attributes configured means the endpoint is not secured - grant access.
             if (attributes == null || attributes.isEmpty()) {
-                return new AuthorizationDecision(true);
-            }
-
-            Authentication auth = authentication.get();
-            for (String attribute : attributes) {
-                if (attribute == null) {
-                    continue;
+                isGranted = true;
+            } else {
+                Authentication auth = authentication.get();
+                Iterator<String> iterator = attributes.iterator();
+                while (!isGranted && iterator.hasNext()) {
+                    String attribute = iterator.next();
+                    if (attribute == null) {
+                        continue;
+                    }
+                    isGranted = grants(attribute, auth);
                 }
-                if (grants(attribute, auth)) {
-                    return new AuthorizationDecision(true);
-                }
             }
-
-            return new AuthorizationDecision(false);
+            return new AuthorizationDecision(isGranted);
         }
 
         /**
@@ -188,31 +190,32 @@ public class EndpointInterceptor implements MessageInterceptor {
          * </ul>
          */
         private static boolean grants(String attribute, Authentication auth) {
-            if (auth == null) {
-                return false;
+            boolean isGranted = false;
+            if (auth != null) {
+                isGranted = switch (attribute) {
+                    case IS_AUTHENTICATED_ANONYMOUSLY -> true;
+                    case IS_AUTHENTICATED_REMEMBERED ->
+                            auth instanceof RememberMeAuthenticationToken || isFullyAuthenticated(auth);
+                    case IS_AUTHENTICATED_FULLY -> isFullyAuthenticated(auth);
+                    default -> auth.isAuthenticated() && hasAuthority(auth, attribute);
+                };
             }
-            switch (attribute) {
-                case IS_AUTHENTICATED_ANONYMOUSLY:
-                    return true;
-                case IS_AUTHENTICATED_REMEMBERED:
-                    return auth instanceof RememberMeAuthenticationToken || isFullyAuthenticated(auth);
-                case IS_AUTHENTICATED_FULLY:
-                    return isFullyAuthenticated(auth);
-                default:
-                    return auth.isAuthenticated() && hasAuthority(auth, attribute);
-            }
+            return isGranted;
         }
 
         private static boolean hasAuthority(Authentication auth, String attribute) {
-            if (auth.getAuthorities() == null) {
-                return false;
-            }
-            for (GrantedAuthority authority : auth.getAuthorities()) {
-                if (authority != null && attribute.equals(authority.getAuthority())) {
-                    return true;
+            boolean hasAuth = false;
+            Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
+            if (authorities != null) {
+                Iterator<? extends GrantedAuthority> authorityIterator = authorities.iterator();
+                while (!hasAuth && authorityIterator.hasNext()) {
+                    GrantedAuthority authority = authorityIterator.next();
+                    if (authority != null) {
+                        hasAuth = attribute.equals(authority.getAuthority());
+                    }
                 }
             }
-            return false;
+            return hasAuth;
         }
 
         private static boolean isFullyAuthenticated(Authentication auth) {
