@@ -301,10 +301,11 @@ public class MessageBrokerBeanDefinitionParser extends AbstractSingleBeanDefinit
             authManager = securityHelper.getAuthenticationManagerId();
         }
 
-        String accessManager = securedElement.getAttribute(ACCESS_MANAGER_ATTR);
-        if (!StringUtils.hasText(accessManager)) {
-            accessManager = securityHelper.getAccessManagerId();
-        }
+        // The 'access-decision-manager' XML attribute is retained in the XSD for backward
+        // compatibility but is no longer wired anywhere: the legacy AccessDecisionManager voter
+        // chain has been replaced by AuthorizationManager on EndpointInterceptor. Users who need
+        // a custom authorization strategy should inject an AuthorizationManager directly into the
+        // EndpointInterceptor bean.
 
         registerSecurityConfigPostProcessorIfNecessary(parserContext, securedElement);
 
@@ -329,7 +330,7 @@ public class MessageBrokerBeanDefinitionParser extends AbstractSingleBeanDefinit
             interceptors.put(MessageInterceptors.LOGIN_MESSAGE_INTERCEPTOR.getOrder(), new RuntimeBeanReference(loginInterceptorBeanId));
         }
 
-        registerEndpointInterceptorIfNecessary(securedElement, parserContext, interceptors, authManager, accessManager);
+        registerEndpointInterceptorIfNecessary(securedElement, parserContext, interceptors);
     }
 
     private void registerConfigMapEditorIfNecessary(Element source, ParserContext parserContext) {
@@ -353,14 +354,9 @@ public class MessageBrokerBeanDefinitionParser extends AbstractSingleBeanDefinit
         }
     }
 
-    private void registerEndpointInterceptorIfNecessary(Element securedElement, ParserContext parserContext, Map<Integer, RuntimeBeanReference> interceptors,
-        String authManager, String accessManager) {
+    private void registerEndpointInterceptorIfNecessary(Element securedElement, ParserContext parserContext, Map<Integer, RuntimeBeanReference> interceptors) {
         if (securedElement.hasChildNodes() && !interceptors.containsKey(MessageInterceptors.ENDPOINT_INTERCEPTOR.getOrder())) {
             BeanDefinitionBuilder interceptorBuilder = BeanDefinitionBuilder.genericBeanDefinition(securityHelper.getEndpointInterceptorClassName());
-            interceptorBuilder.addPropertyReference(AUTH_MANAGER_PROPERTY, authManager);
-            if (StringUtils.hasText(accessManager)) {
-                interceptorBuilder.addPropertyReference(ACCESS_MANAGER_PROPERTY, accessManager);
-            }
 
             BeanDefinitionBuilder endpointDefSourceBuilder = BeanDefinitionBuilder.genericBeanDefinition(securityHelper.getEndpointDefinitionSourceClassName());
 

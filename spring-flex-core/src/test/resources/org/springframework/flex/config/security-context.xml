@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans 
   			  http://www.springframework.org/schema/beans/spring-beans.xsd
   			  http://www.springframework.org/schema/security
-              http://www.springframework.org/schema/security/spring-security-6.5.xsd">
+              http://www.springframework.org/schema/security/spring-security.xsd">
 
 <!--	<security:http entry-point-ref="testEntryPoint">-->
 <!--		<security:form-login/>-->
@@ -31,6 +31,4 @@
     <bean id="testHelper" class="org.springframework.flex.config.xml.MessageBrokerBeanDefinitionParserTests$AccessDecisionManagerLogger"/>
 
 	<bean id="mvcHandlerMappingIntrospector" class="org.springframework.web.servlet.handler.HandlerMappingIntrospector" />
-
-	<security:global-method-security secured-annotations="enabled" />
-</beans> 
+</beans>

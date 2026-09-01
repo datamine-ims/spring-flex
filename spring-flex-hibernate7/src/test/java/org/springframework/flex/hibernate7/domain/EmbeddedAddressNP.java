@@ -1,0 +1,23 @@
+
+package org.springframework.flex.hibernate7.domain;
+
+import java.util.Date;
+
+import jakarta.persistence.Embeddable;
+
+@Embeddable
+public class EmbeddedAddressNP {
+
+    public String street;
+
+    public String city;
+
+    public String state;
+
+    public String zipcode;
+
+    public Integer rooms;
+
+    public Date moveInDate;
+
+}

@@ -5,7 +5,7 @@
 	<artifactId>spring-flex-parent</artifactId>
 	<packaging>pom</packaging>
 	<name>Spring BlazeDS Integration Parent POM</name>
-	<version>1.6.2.BUILD</version>
+	<version>1.7.0.BUILD</version>
 	
 	<description>
     	Spring BlazeDS Integration is a top-level Spring project, and a component of the complete Spring Web stack.  This 
@@ -64,10 +64,10 @@
 	</distributionManagement>
 
     <properties>
-		<spring.version>6.2.8</spring.version>
+		<spring.version>7.0.8</spring.version>
 		<integration.version>2.2.6.RELEASE</integration.version>
 <!--		<security.version>3.2.4.RELEASE</security.version>-->
-		<security.version>6.5.1</security.version>
+		<security.version>7.0.0</security.version>
 		<blazeds.version>5.0.0</blazeds.version>
 		<slf4j.version>2.0.17</slf4j.version>
 		<hibernate3.version>3.6.10.Final</hibernate3.version>
@@ -79,7 +79,7 @@
 			<dependency>
 				<groupId>com.h2database</groupId>
 				<artifactId>h2</artifactId>
-				<version>1.4.180</version>
+				<version>2.3.232</version>
 			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
@@ -197,7 +197,7 @@
 			<dependency>
 				<groupId>org.springframework.flex</groupId>
 				<artifactId>spring-flex-core</artifactId>
-				<version>1.6.2.BUILD</version>
+				<version>1.7.0.BUILD</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.flex.blazeds</groupId>
@@ -424,9 +424,9 @@
 
 	<repositories>
 		<repository>
-			<id>repo.spring.io-ext-release-local</id>
-			<name>Spring repository for third party libraries</name>
-			<url>http://repo.spring.io/ext-release-local</url>
+			<id>nexus-3rd-party</id>
+			<name>Nexus third-party repository</name>
+			<url>http://172.22.22.9/nexus/content/repositories/thirdparty</url>
 		</repository>
 	</repositories>
 

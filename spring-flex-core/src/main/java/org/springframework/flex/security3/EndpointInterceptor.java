@@ -16,19 +16,23 @@
 
 package org.springframework.flex.security3;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.function.Supplier;
 
 import org.springframework.flex.core.MessageInterceptor;
 import org.springframework.flex.core.MessageProcessingContext;
-import org.springframework.security.access.AccessDecisionManager;
-import org.springframework.security.access.AccessDecisionVoter;
-import org.springframework.security.access.SecurityMetadataSource;
-import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
-import org.springframework.security.access.intercept.InterceptorStatusToken;
-import org.springframework.security.access.vote.AffirmativeBased;
-import org.springframework.security.access.vote.AuthenticatedVoter;
-import org.springframework.security.access.vote.RoleVoter;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.authentication.RememberMeAuthenticationToken;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.Assert;
 
 import flex.messaging.endpoints.AbstractEndpoint;
 import flex.messaging.messages.CommandMessage;
@@ -38,63 +42,33 @@ import flex.messaging.messages.Message;
  * Security interceptor that secures messages being passed to BlazeDS endpoints based on the security attributes
  * configured for the endpoint being invoked.
  *
+ * <p>This implementation uses the {@link AuthorizationManager} API introduced as the primary authorization model
+ * in Spring Security. It deliberately avoids the legacy {@code AbstractSecurityInterceptor} /
+ * {@code AccessDecisionManager} voter infrastructure, which was moved to the optional {@code spring-security-access}
+ * module in Spring Security 7. The default {@link AuthorizationManager} preserves the previous behaviour of the
+ * {@code RoleVoter} + {@code AuthenticatedVoter} combination: access is granted when the authenticated principal
+ * holds any of the required authorities, or when the endpoint declares no attributes.
+ *
  * @author Jeremy Grelle
  */
-public class EndpointInterceptor extends AbstractSecurityInterceptor implements MessageInterceptor {
-
-    private static final String STATUS_TOKEN = "_enpointInterceptorStatusToken";
+public class EndpointInterceptor implements MessageInterceptor {
 
     private EndpointSecurityMetadataSource securityMetadataSource;
 
-    @Override
+    private AuthorizationManager<AbstractEndpoint> authorizationManager;
+
+    /**
+     * Ensures the default {@link AuthorizationManager} is in place if a custom one was not supplied.
+     */
     public void afterPropertiesSet() {
-        if (getAccessDecisionManager() == null) {
-            configureDefaultAccessDecisionManager();
+        Assert.notNull(this.securityMetadataSource, "securityMetadataSource must be set");
+        if (this.authorizationManager == null) {
+            this.authorizationManager = new EndpointAuthorizationManager(this.securityMetadataSource);
         }
-        super.afterPropertiesSet();
     }
 
     public EndpointSecurityMetadataSource getObjectDefinitionSource() {
         return this.securityMetadataSource;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Class<?> getSecureObjectClass() {
-        return AbstractEndpoint.class;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SecurityMetadataSource obtainSecurityMetadataSource() {
-        return this.securityMetadataSource;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Message postProcess(MessageProcessingContext context, Message inputMessage, Message outputMessage) {
-        if (context.getAttributes().containsKey(STATUS_TOKEN)) {
-            InterceptorStatusToken token = (InterceptorStatusToken) context.getAttributes().get(STATUS_TOKEN);
-            return (Message) afterInvocation(token, outputMessage);
-        } else {
-            return outputMessage;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Message preProcess(MessageProcessingContext context, Message inputMessage) {
-        if (!isPassThroughCommand(inputMessage)) {
-            InterceptorStatusToken token = beforeInvocation(context.getMessageTarget());
-            context.getAttributes().put(STATUS_TOKEN, token);
-        }
-        return inputMessage;
     }
 
     /**
@@ -104,12 +78,56 @@ public class EndpointInterceptor extends AbstractSecurityInterceptor implements 
      */
     public void setObjectDefinitionSource(EndpointSecurityMetadataSource newSource) {
         this.securityMetadataSource = newSource;
+        if (this.authorizationManager == null) {
+            this.authorizationManager = new EndpointAuthorizationManager(newSource);
+        }
     }
 
-    private void configureDefaultAccessDecisionManager() {
-        List<AccessDecisionVoter<?>> voters = List.of(new RoleVoter(), new AuthenticatedVoter());
-        AccessDecisionManager accessDecisionManager = new AffirmativeBased(voters);
-        setAccessDecisionManager(accessDecisionManager);
+    /**
+     * Replaces the default attribute-based {@link AuthorizationManager} with a custom implementation.
+     */
+    public void setAuthorizationManager(AuthorizationManager<AbstractEndpoint> authorizationManager) {
+        this.authorizationManager = authorizationManager;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Message preProcess(MessageProcessingContext context, Message inputMessage) {
+        if (!isPassThroughCommand(inputMessage)) {
+            AbstractEndpoint endpoint = (AbstractEndpoint) context.getMessageTarget();
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            AuthorizationResult result = this.authorizationManager.authorize(() -> authentication, endpoint);
+
+            // AuthorizationManager#authorize may return null to abstain. Deny by default so a custom
+            // AuthorizationManager that abstains cannot unintentionally grant access.
+            if (result == null || !result.isGranted()) {
+                // Mirror AbstractSecurityInterceptor: an unauthenticated principal yields an
+                // AuthenticationException (CLIENT_AUTHENTICATION_CODE), whereas an authenticated
+                // but insufficiently privileged principal yields an AccessDeniedException
+                // (CLIENT_AUTHORIZATION_CODE).
+                if (isUnauthenticated(authentication)) {
+                    throw new InsufficientAuthenticationException(
+                        "An Authentication object was not found in the SecurityContext");
+                }
+                throw new AccessDeniedException("Access is denied");
+            }
+        }
+        return inputMessage;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Message postProcess(MessageProcessingContext context, Message inputMessage, Message outputMessage) {
+        return outputMessage;
+    }
+
+    private static boolean isUnauthenticated(Authentication authentication) {
+        return authentication == null
+            || authentication instanceof AnonymousAuthenticationToken
+            || !authentication.isAuthenticated();
     }
 
     private boolean isPassThroughCommand(Message message) {
@@ -118,5 +136,92 @@ public class EndpointInterceptor extends AbstractSecurityInterceptor implements 
             return command.getOperation() == CommandMessage.CLIENT_PING_OPERATION || command.getOperation() == CommandMessage.LOGIN_OPERATION;
         }
         return false;
+    }
+
+    /**
+     * Default {@link AuthorizationManager} that grants access when the authenticated principal holds any of the
+     * authorities declared for the endpoint, or when the endpoint declares no attributes (open). This mirrors the
+     * legacy {@code AffirmativeBased} manager configured with a {@code RoleVoter} and an {@code AuthenticatedVoter}.
+     */
+    private static final class EndpointAuthorizationManager implements AuthorizationManager<AbstractEndpoint> {
+
+        private final EndpointSecurityMetadataSource metadataSource;
+
+        EndpointAuthorizationManager(EndpointSecurityMetadataSource metadataSource) {
+            this.metadataSource = metadataSource;
+        }
+
+        private static final String IS_AUTHENTICATED_FULLY = "IS_AUTHENTICATED_FULLY";
+
+        private static final String IS_AUTHENTICATED_REMEMBERED = "IS_AUTHENTICATED_REMEMBERED";
+
+        private static final String IS_AUTHENTICATED_ANONYMOUSLY = "IS_AUTHENTICATED_ANONYMOUSLY";
+
+        @Override
+        public AuthorizationResult authorize(Supplier<? extends Authentication> authentication, AbstractEndpoint endpoint) {
+            Collection<String> attributes = this.metadataSource.getAttributes(endpoint);
+
+            boolean isGranted = false;
+
+            // No attributes configured means the endpoint is not secured - grant access.
+            if (attributes == null || attributes.isEmpty()) {
+                isGranted = true;
+            } else {
+                Authentication auth = authentication.get();
+                Iterator<String> iterator = attributes.iterator();
+                while (!isGranted && iterator.hasNext()) {
+                    String attribute = iterator.next();
+                    if (attribute == null) {
+                        continue;
+                    }
+                    isGranted = grants(attribute, auth);
+                }
+            }
+            return new AuthorizationDecision(isGranted);
+        }
+
+        /**
+         * Mirrors the legacy {@code AuthenticatedVoter} + {@code RoleVoter} semantics:
+         * <ul>
+         *     <li>{@code IS_AUTHENTICATED_ANONYMOUSLY} - granted for any authentication, including anonymous.</li>
+         *     <li>{@code IS_AUTHENTICATED_REMEMBERED} - granted for remember-me or fully authenticated principals.</li>
+         *     <li>{@code IS_AUTHENTICATED_FULLY} - granted only for fully authenticated (non-anonymous, non-remembered) principals.</li>
+         *     <li>Any other attribute is treated as the name of a {@link GrantedAuthority} that the authentication must hold.</li>
+         * </ul>
+         */
+        private static boolean grants(String attribute, Authentication auth) {
+            boolean isGranted = false;
+            if (auth != null) {
+                isGranted = switch (attribute) {
+                    case IS_AUTHENTICATED_ANONYMOUSLY -> true;
+                    case IS_AUTHENTICATED_REMEMBERED ->
+                            auth instanceof RememberMeAuthenticationToken || isFullyAuthenticated(auth);
+                    case IS_AUTHENTICATED_FULLY -> isFullyAuthenticated(auth);
+                    default -> auth.isAuthenticated() && hasAuthority(auth, attribute);
+                };
+            }
+            return isGranted;
+        }
+
+        private static boolean hasAuthority(Authentication auth, String attribute) {
+            boolean hasAuth = false;
+            Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
+            if (authorities != null) {
+                Iterator<? extends GrantedAuthority> authorityIterator = authorities.iterator();
+                while (!hasAuth && authorityIterator.hasNext()) {
+                    GrantedAuthority authority = authorityIterator.next();
+                    if (authority != null) {
+                        hasAuth = attribute.equals(authority.getAuthority());
+                    }
+                }
+            }
+            return hasAuth;
+        }
+
+        private static boolean isFullyAuthenticated(Authentication auth) {
+            return auth.isAuthenticated()
+                && !(auth instanceof AnonymousAuthenticationToken)
+                && !(auth instanceof RememberMeAuthenticationToken);
+        }
     }
 }

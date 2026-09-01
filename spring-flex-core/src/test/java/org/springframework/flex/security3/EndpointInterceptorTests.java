@@ -37,9 +37,6 @@ import org.springframework.flex.core.EndpointServiceMessagePointcutAdvisor;
 import org.springframework.flex.core.MessageInterceptionAdvice;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -55,9 +52,6 @@ import flex.messaging.messages.Message;
 
 public class EndpointInterceptorTests {
 
-    @Mock
-    private AuthenticationManager mgr;
-    
     @Mock
     private AbstractEndpoint endpoint;
 
@@ -76,15 +70,14 @@ public class EndpointInterceptorTests {
     public void setUp() throws Exception{
         MockitoAnnotations.initMocks(this);
 
-        LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>>();
-        List<ConfigAttribute> attrs = new ArrayList<ConfigAttribute>();
-        attrs.add(new SecurityConfig("ROLE_USER"));
+        LinkedHashMap<RequestMatcher, Collection<String>> requestMap = new LinkedHashMap<RequestMatcher, Collection<String>>();
+        List<String> attrs = new ArrayList<String>();
+        attrs.add("ROLE_USER");
         requestMap.put(new AntPathRequestMatcher("/messagebroker/amf"), attrs);
         EndpointSecurityMetadataSource source = new EndpointSecurityMetadataSource(requestMap);
 
         EndpointInterceptor interceptor;
         interceptor = new EndpointInterceptor();
-        interceptor.setAuthenticationManager(this.mgr);
         interceptor.setObjectDefinitionSource(source);
         interceptor.afterPropertiesSet();
         MessageInterceptionAdvice advice = new MessageInterceptionAdvice();
